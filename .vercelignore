@@ -1,0 +1,7 @@
+node_modules
+dist
+.git
+.venv_color
+buildher.webp
+*.log
+.DS_Store

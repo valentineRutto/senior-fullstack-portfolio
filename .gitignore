@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.venv_color/
+.DS_Store
+*.log

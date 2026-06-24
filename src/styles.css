@@ -25,6 +25,10 @@ html {
   scroll-padding-top: 92px;
 }
 
+[id] {
+  scroll-margin-top: 92px;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -321,8 +325,6 @@ a {
 .section {
   padding: 32px 0 0;
   border-bottom: 1px solid var(--border);
-  content-visibility: auto;
-  contain-intrinsic-size: 600px;
 }
 
 .section-heading {
@@ -724,6 +726,14 @@ a {
 }
 
 @media (max-width: 620px) {
+  html {
+    scroll-padding-top: 76px;
+  }
+
+  [id] {
+    scroll-margin-top: 76px;
+  }
+
   .site-header {
     min-height: 72px;
   }

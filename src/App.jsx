@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { ArrowRight, Braces, Cloud, Layers3, Menu, X } from "lucide-react";
 import { ArrowLink } from "./components/ArrowLink.jsx";
 import { SystemDiagram } from "./components/SystemDiagram.jsx";
@@ -15,6 +15,29 @@ function Header() {
   const [open, setOpen] = useState(false);
   const [activeHash, setActiveHash] = useState(() => window.location.hash || "#top");
 
+  const navigateToSection = (event, hash) => {
+    event.preventDefault();
+    const target = document.querySelector(hash);
+    if (!target) return;
+
+    window.history.pushState(null, "", hash);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveHash(hash);
+    setOpen(false);
+  };
+
+  useLayoutEffect(() => {
+    const hash = window.location.hash;
+    const target = hash ? document.querySelector(hash) : null;
+    if (!target) return;
+
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    target.scrollIntoView({ block: "start" });
+    root.style.scrollBehavior = previousBehavior;
+  }, []);
+
   useEffect(() => {
     const close = () => setOpen(false);
     window.addEventListener("resize", close);
@@ -26,9 +49,6 @@ function Header() {
     const sections = sectionHashes
       .map((hash) => document.querySelector(hash))
       .filter(Boolean);
-    const initialHash = sectionHashes.includes(window.location.hash)
-      ? window.location.hash
-      : "#top";
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -40,35 +60,27 @@ function Header() {
 
         const nextHash = `#${visibleSection.target.id}`;
         setActiveHash(nextHash);
-        window.history.replaceState(
-          null,
-          "",
-          `${window.location.pathname}${window.location.search}${nextHash}`,
-        );
       },
       { rootMargin: "-18% 0px -68% 0px", threshold: [0, 0.1, 0.5] },
     );
 
-    let secondFrame;
-    const firstFrame = window.requestAnimationFrame(() => {
-      document.querySelector(initialHash)?.scrollIntoView();
-      setActiveHash(initialHash);
-
-      secondFrame = window.requestAnimationFrame(() => {
-        sections.forEach((section) => observer.observe(section));
-      });
-    });
+    sections.forEach((section) => observer.observe(section));
 
     return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
       observer.disconnect();
     };
   }, []);
 
   return (
     <header className="site-header">
-      <a className="monogram" href="#top" aria-label="Valentine Rutto, home">VR</a>
+      <a
+        className="monogram"
+        href="#top"
+        aria-label="Valentine Rutto, home"
+        onClick={(event) => navigateToSection(event, "#top")}
+      >
+        VR
+      </a>
       <button
         className="menu-button"
         type="button"
@@ -86,7 +98,7 @@ function Header() {
             key={href}
             href={href}
             aria-current={activeHash === href ? "location" : undefined}
-            onClick={() => setOpen(false)}
+            onClick={(event) => navigateToSection(event, href)}
           >
             {label}
           </a>
@@ -95,6 +107,7 @@ function Header() {
       <ArrowLink
         className={`contact-nav${activeHash === "#contact" ? " is-active" : ""}`}
         href="#contact"
+        onClick={(event) => navigateToSection(event, "#contact")}
       >
         Contact
       </ArrowLink>
